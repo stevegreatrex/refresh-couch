@@ -65,9 +65,10 @@
 
 		views.forEach(function (viewDef) {
 			console.log('Starting ' + viewDef.design + ' on ' + viewDef.dbUrl);
-			nano(viewDef.dbUrl).view(viewDef.design, viewDef.viewName);
+			nano(viewDef.dbUrl).view(viewDef.design, viewDef.viewName, function () { });
 		});
 
+		console.log('Started ' + views.length + ' design documents');
 		done();
 	}
 
