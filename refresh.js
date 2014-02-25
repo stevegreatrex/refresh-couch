@@ -22,25 +22,17 @@
 
 			var designDocs = [];
 
-			if (dbs.length) {
-				getDbViews(serverUrl + dbs.pop(), addDesignDoc, processNextDb);
-			} else {
+			processQueue(dbs, function (db, next) {
+				getDbViews(serverUrl + db, addDesignDoc, next);
+			}, function () {
 				processViews(designDocs, done);
-			}
+			});
 
 			function addDesignDoc(dbUrl, designDoc) {
 				designDocs.push({
 					db: dbUrl,
 					designDoc: designDoc
 				});
-			}
-
-			function processNextDb() {
-				if (dbs.length) {
-					getDbViews(serverUrl + dbs.pop(), addDesignDoc, processNextDb);
-				} else {
-					processViews(designDocs, done);
-				}
 			}
 		});
 	}
@@ -63,13 +55,22 @@
 
 		console.log('Found ' + views.length + ' design documents with a view');
 
-		views.forEach(function (viewDef) {
-			console.log('Starting ' + viewDef.design + ' on ' + viewDef.dbUrl);
-			nano(viewDef.dbUrl).view(viewDef.design, viewDef.viewName, function () { });
-		});
+		var processing = 0;
+		processQueue(views, function (viewDef, next) {
+			processing++;
+			process.stdout.clearLine();
+			process.stdout.cursorTo(0);
+			process.stdout.write('Processing ' + processing + '/' + views.length);
 
-		console.log('Started ' + views.length + ' design documents');
-		done();
+			nano(viewDef.dbUrl).view(viewDef.design, viewDef.viewName, {
+				stale: 'update_after', //we don't want to wait for the update
+				key: 'non-existant' //and we don't care about the result to filter out everything
+			}, next);
+
+		}, function () {
+			console.log('\nFinished processing ' + views.length + ' design documents');
+			done();
+		});
 	}
 
 	function getDbViews(dbUrl, addDesignDoc, done) {
@@ -87,5 +88,19 @@
 
 			done();
 		});
+	}
+
+	function processQueue(queue, action, done) {
+		var pendingItems = queue.slice();
+
+		function processNextItem() {
+			if (pendingItems.length) {
+				action(pendingItems.pop(), processNextItem);
+			} else {
+				done();
+			}
+		}
+
+		processNextItem();
 	}
 }(require, module));
