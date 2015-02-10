@@ -7,3 +7,5 @@ A node utility to keep couchdb views up-to-date
     npm install -g refresh-couch
 
 ## Usage
+
+    refresh-couch --url http://user:pass@localhost:5984 [--exclude dbName1, dbName2]

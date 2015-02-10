@@ -3,7 +3,9 @@
 (function(require) {
 	var args = require('optimist').argv;
 
-	require('./refresh.js')(args.url, function() {
+	var exclude = args.exclude ? args.exclude.split(',') : [];
+
+	require('./refresh.js')(args.url, { exclude: exclude }, function() {
 		process.exit();
 	});
 }(require));

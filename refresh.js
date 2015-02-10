@@ -4,9 +4,12 @@
 	'use strict';
 
 	module.exports = refreshServerViews;
-	var nano = require('nano')
+	var nano = require('nano');
 
-	function refreshServerViews(serverUrl, done) {
+	function refreshServerViews(serverUrl, options, done) {
+		if (typeof options === 'function') {
+			done = options;
+		}
 		done = done || function () { };
 		
 		var server = nano(serverUrl);
@@ -15,10 +18,15 @@
 		server.db.list(function (err, dbs) {
 			if (err) { done(err); return; }
 
-			console.log('Found ' + dbs.length + ' databases');
-			
 			dbs.splice(dbs.indexOf('_replicator'), 1);
 			dbs.splice(dbs.indexOf('_users'), 1);
+			if (options && options.exclude) {
+				options.exclude.forEach(function(exclusion) {
+					dbs.splice(dbs.indexOf(exclusion), 1);
+				})
+			}
+
+			console.log('Found ' + dbs.length + ' databases');
 
 			var designDocs = [];
 
