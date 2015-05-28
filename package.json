@@ -1,6 +1,6 @@
 {
   "name": "refresh-couch",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Refreshes couch db views",
   "main": "refresh.js",
   "author": "@stevegreatrex",
