@@ -11,7 +11,11 @@
 			done = options;
 		}
 		done = done || function () { };
-		
+
+		if (serverUrl[serverUrl.length-1] !== '/') {
+			serverUrl += '/';
+		}
+
 		var server = nano(serverUrl);
 		
 		console.log('Searching for databases');
