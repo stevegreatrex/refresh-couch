@@ -66,9 +66,7 @@
 		var processing = 0;
 		processQueue(views, function (viewDef, next) {
 			processing++;
-			process.stdout.clearLine();
-			process.stdout.cursorTo(0);
-			process.stdout.write('Processing ' + processing + '/' + views.length);
+			process.stdout.write('Processing ' + processing + '/' + views.length + '\r\n');
 
 			nano(viewDef.dbUrl).view(viewDef.design, viewDef.viewName, {
 				stale: 'update_after', //we don't want to wait for the update
